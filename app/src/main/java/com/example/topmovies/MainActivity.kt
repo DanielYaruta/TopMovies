@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import android.widget.AutoCompleteTextView
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -47,6 +48,10 @@ class MainActivity : AppCompatActivity() {
                 if (lastVisible >= adapter.itemCount - 4) viewModel.loadNextPage()
             }
         })
+
+        binding.searchView.findViewById<AutoCompleteTextView>(
+            androidx.appcompat.R.id.search_src_text
+        )?.setTextColor(Color.WHITE)
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
