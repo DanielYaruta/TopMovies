@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="8dp">
+
+    <View
+        android:id="@+id/skPoster"
+        android:layout_width="70dp"
+        android:layout_height="105dp"
+        android:background="@drawable/bg_skeleton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <View
+        android:id="@+id/skRank"
+        android:layout_width="28dp"
+        android:layout_height="13dp"
+        android:background="@drawable/bg_skeleton"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/skPoster"
+        app:layout_constraintTop_toTopOf="@id/skPoster" />
+
+    <View
+        android:id="@+id/skTitle"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        android:background="@drawable/bg_skeleton"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toEndOf="@id/skPoster"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/skRank" />
+
+    <View
+        android:id="@+id/skTitle2"
+        android:layout_width="130dp"
+        android:layout_height="16dp"
+        android:background="@drawable/bg_skeleton"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="6dp"
+        app:layout_constraintStart_toEndOf="@id/skPoster"
+        app:layout_constraintTop_toBottomOf="@id/skTitle" />
+
+    <View
+        android:id="@+id/skYear"
+        android:layout_width="40dp"
+        android:layout_height="12dp"
+        android:background="@drawable/bg_skeleton"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintStart_toEndOf="@id/skPoster"
+        app:layout_constraintTop_toBottomOf="@id/skTitle2" />
+
+    <View
+        android:id="@+id/skRating"
+        android:layout_width="44dp"
+        android:layout_height="12dp"
+        android:background="@drawable/bg_skeleton"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toEndOf="@id/skPoster"
+        app:layout_constraintTop_toBottomOf="@id/skYear" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#1E1E1E"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/skPoster" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
