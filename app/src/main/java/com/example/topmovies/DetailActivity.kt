@@ -72,42 +72,37 @@ class DetailActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    viewModel.details.collect { details ->
-                        details ?: return@collect
-                        val runtime = details.runtime
-                        if (runtime != null && runtime > 0) {
-                            val formatted = if (runtime >= 60) "${runtime / 60}h ${runtime % 60}m" else "${runtime}m"
-                            binding.tvRuntime.text = "· $formatted"
-                        }
-                        if (details.genres.isNotEmpty()) {
-                            binding.tvGenres.text = details.genres.joinToString(" · ") { it.name }
-                        }
-                    }
-                }
-                launch {
-                    viewModel.credits.collect { credits ->
-                        credits ?: return@collect
-                        val director = credits.crew.firstOrNull { it.job == "Director" }
-                        if (director != null) {
-                            binding.tvDirector.text = "Director: ${director.name}"
-                        }
-                        val topCast = credits.cast.sortedBy { it.order }.take(10)
-                        binding.rvCast.adapter = CastAdapter(topCast)
-                    }
-                }
-                launch {
-                    viewModel.similarMovies.collect { similar ->
-                        if (similar.isEmpty()) return@collect
-                        binding.tvSimilarLabel.visibility = View.VISIBLE
-                        binding.rvSimilar.visibility = View.VISIBLE
-                        binding.rvSimilar.adapter = SimilarMovieAdapter(similar)
-                    }
-                }
-                launch {
-                    viewModel.error.collect { error ->
-                        if (error != null) {
-                            Snackbar.make(binding.root, error, Snackbar.LENGTH_LONG).show()
-                            viewModel.clearError()
+                    viewModel.uiState.collect { state ->
+                        when (state) {
+                            is DetailUiState.Loading -> Unit
+                            is DetailUiState.Error -> {
+                                Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                            }
+                            is DetailUiState.Success -> {
+                                state.details?.let { details ->
+                                    val runtime = details.runtime
+                                    if (runtime != null && runtime > 0) {
+                                        val formatted = if (runtime >= 60) "${runtime / 60}h ${runtime % 60}m" else "${runtime}m"
+                                        binding.tvRuntime.text = "· $formatted"
+                                    }
+                                    if (details.genres.isNotEmpty()) {
+                                        binding.tvGenres.text = details.genres.joinToString(" · ") { it.name }
+                                    }
+                                }
+                                state.credits?.let { credits ->
+                                    val director = credits.crew.firstOrNull { it.job == "Director" }
+                                    if (director != null) {
+                                        binding.tvDirector.text = "Director: ${director.name}"
+                                    }
+                                    val topCast = credits.cast.sortedBy { it.order }.take(10)
+                                    binding.rvCast.adapter = CastAdapter(topCast)
+                                }
+                                if (state.similarMovies.isNotEmpty()) {
+                                    binding.tvSimilarLabel.visibility = View.VISIBLE
+                                    binding.rvSimilar.visibility = View.VISIBLE
+                                    binding.rvSimilar.adapter = SimilarMovieAdapter(state.similarMovies)
+                                }
+                            }
                         }
                     }
                 }

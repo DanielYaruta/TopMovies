@@ -42,9 +42,22 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { viewModel.movies.collect { adapter.setMovies(it) } }
-                launch { viewModel.isLoading.collect { adapter.setLoading(it) } }
-                launch { viewModel.isRefreshing.collect { binding.swipeRefresh.isRefreshing = it } }
+                launch {
+                    viewModel.uiState.collect { state ->
+                        when (state) {
+                            is MovieListUiState.Loading -> {
+                                adapter.setMovies(emptyList())
+                                adapter.setLoading(false)
+                                binding.swipeRefresh.isRefreshing = false
+                            }
+                            is MovieListUiState.Success -> {
+                                adapter.setMovies(state.movies)
+                                adapter.setLoading(state.isLoadingMore)
+                                binding.swipeRefresh.isRefreshing = state.isRefreshing
+                            }
+                        }
+                    }
+                }
                 launch {
                     viewModel.error.collect { error ->
                         if (error != null) {
