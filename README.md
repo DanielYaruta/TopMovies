@@ -35,4 +35,4 @@ Android app that displays top-rated movies from [TMDB](https://www.themoviedb.or
 
 | List | Detail |
 |------|--------|
-| Top-rated movies with posters and ratings | Cast, genres, runtime, similar movies |
+| ![List](screenshots/main.png) | ![Detail](screenshots/detail.png) |
