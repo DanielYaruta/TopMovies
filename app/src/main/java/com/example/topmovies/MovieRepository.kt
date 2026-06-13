@@ -7,40 +7,48 @@ import com.example.topmovies.data.MovieResponse
 import com.example.topmovies.data.toEntity
 import com.example.topmovies.data.toMovie
 import com.example.topmovies.network.ApiClient
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 class MovieRepository(context: Context) {
     private val api = ApiClient.service
     private val dao = AppDatabase.getInstance(context).movieDao()
     private val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
 
-    suspend fun getTopRatedMovies(page: Int): MovieResponse {
-        val cached = dao.getMoviesByPage(page)
-        if (cached.isNotEmpty()) {
-            val totalPages = prefs.getInt("total_pages", page)
-            return MovieResponse(
-                page = page,
-                results = cached.map { it.toMovie() },
-                totalPages = totalPages,
-                totalResults = cached.size
-            )
-        }
-        val response = api.getTopRatedMovies(BuildConfig.TMDB_API_KEY, "en-US", page)
-        dao.insertMovies(response.results.map { it.toEntity(page) })
-        prefs.edit().putInt("total_pages", response.totalPages).apply()
-        return response
-    }
+    fun getTopRatedMovies(page: Int): Single<MovieResponse> =
+        dao.getMoviesByPage(page)
+            .flatMap { cached ->
+                if (cached.isNotEmpty()) {
+                    val totalPages = prefs.getInt("total_pages", page)
+                    Single.just(MovieResponse(
+                        page = page,
+                        results = cached.map { it.toMovie() },
+                        totalPages = totalPages,
+                        totalResults = cached.size
+                    ))
+                } else {
+                    api.getTopRatedMovies(BuildConfig.TMDB_API_KEY, "en-US", page)
+                        .doOnSuccess { response ->
+                            prefs.edit().putInt("total_pages", response.totalPages).apply()
+                        }
+                        .flatMap { response ->
+                            dao.insertMovies(response.results.map { it.toEntity(page) })
+                                .andThen(Single.just(response))
+                        }
+                }
+            }
 
-    suspend fun searchMovies(query: String): List<Movie> =
-        dao.searchMovies(query).map { it.toMovie() }
+    fun searchMovies(query: String): Single<List<Movie>> =
+        dao.searchMovies(query).map { list -> list.map { it.toMovie() } }
 
-    suspend fun clearCache() = dao.clearAll()
+    fun clearCache(): Completable = dao.clearAll()
 
-    suspend fun getMovieDetails(movieId: Int) =
+    fun getMovieDetails(movieId: Int) =
         api.getMovieDetails(movieId, BuildConfig.TMDB_API_KEY)
 
-    suspend fun getCredits(movieId: Int) =
+    fun getCredits(movieId: Int) =
         api.getCredits(movieId, BuildConfig.TMDB_API_KEY)
 
-    suspend fun getSimilarMovies(movieId: Int) =
+    fun getSimilarMovies(movieId: Int) =
         api.getSimilarMovies(movieId, BuildConfig.TMDB_API_KEY)
 }

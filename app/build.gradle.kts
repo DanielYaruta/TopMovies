@@ -56,5 +56,9 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.room.rxjava3)
+    implementation(libs.rxjava)
+    implementation(libs.rxandroid)
+    implementation(libs.retrofit.rxjava3)
     ksp(libs.room.compiler)
 }

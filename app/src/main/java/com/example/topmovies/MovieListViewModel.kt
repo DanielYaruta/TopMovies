@@ -2,16 +2,20 @@ package com.example.topmovies
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.topmovies.data.Movie
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class MovieListViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repository = MovieRepository(app)
+    private val disposables = CompositeDisposable()
 
     private val _uiState = MutableStateFlow<MovieListUiState>(MovieListUiState.Loading)
     val uiState: StateFlow<MovieListUiState> = _uiState.asStateFlow()
@@ -22,11 +26,32 @@ class MovieListViewModel(app: Application) : AndroidViewModel(app) {
     private var currentPage = 0
     private var totalPages = 1
     private var isLoading = false
-
     private var isSearchActive = false
     private var savedStateBeforeSearch: MovieListUiState? = null
 
-    init { load(1) }
+    private val searchSubject = PublishSubject.create<String>()
+
+    init {
+        setupSearch()
+        load(1)
+    }
+
+    private fun setupSearch() {
+        disposables.add(
+            searchSubject
+                .debounce(300, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .switchMapSingle { query ->
+                    repository.searchMovies(query)
+                        .subscribeOn(Schedulers.io())
+                        .onErrorReturn { emptyList() }
+                }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { results ->
+                    _uiState.value = MovieListUiState.Success(results)
+                }
+        )
+    }
 
     fun loadNextPage() {
         if (isSearchActive || isLoading || currentPage >= totalPages) return
@@ -44,11 +69,18 @@ class MovieListViewModel(app: Application) : AndroidViewModel(app) {
         currentPage = 0
         totalPages = 1
         _uiState.value = MovieListUiState.Success(emptyList(), isRefreshing = true)
-        viewModelScope.launch {
+        disposables.add(
             repository.clearCache()
-            isLoading = false
-            load(1)
-        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    isLoading = false
+                    load(1)
+                }, { e ->
+                    _error.value = e.message
+                    isLoading = false
+                })
+        )
     }
 
     fun searchMovies(query: String) {
@@ -64,28 +96,33 @@ class MovieListViewModel(app: Application) : AndroidViewModel(app) {
             isSearchActive = true
             savedStateBeforeSearch = _uiState.value
         }
-        viewModelScope.launch {
-            val results = repository.searchMovies(query)
-            _uiState.value = MovieListUiState.Success(results)
-        }
+        searchSubject.onNext(query)
     }
 
     fun clearError() { _error.value = null }
 
     private fun load(page: Int, existing: List<Movie> = emptyList()) {
         isLoading = true
-        viewModelScope.launch {
-            runCatching {
-                val response = repository.getTopRatedMovies(page)
-                currentPage = response.page
-                totalPages = response.totalPages
-                _uiState.value = MovieListUiState.Success(existing + response.results)
-            }.onFailure { e ->
-                _error.value = e.message ?: "Failed to load movies"
-                _uiState.value = if (existing.isEmpty()) MovieListUiState.Loading
-                                 else MovieListUiState.Success(existing)
-            }
-            isLoading = false
-        }
+        disposables.add(
+            repository.getTopRatedMovies(page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response ->
+                    currentPage = response.page
+                    totalPages = response.totalPages
+                    _uiState.value = MovieListUiState.Success(existing + response.results)
+                    isLoading = false
+                }, { e ->
+                    _error.value = e.message ?: "Failed to load movies"
+                    _uiState.value = if (existing.isEmpty()) MovieListUiState.Loading
+                                     else MovieListUiState.Success(existing)
+                    isLoading = false
+                })
+        )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
     }
 }

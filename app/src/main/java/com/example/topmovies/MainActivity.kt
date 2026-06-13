@@ -7,8 +7,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.AutoCompleteTextView
-import androidx.appcompat.widget.SearchView
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -37,8 +36,8 @@ class MainActivity : AppCompatActivity() {
         binding.swipeRefresh.setColorSchemeColors(getColor(R.color.gold))
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#1E1E1E"))
         binding.swipeRefresh.setOnRefreshListener {
-            binding.searchView.setQuery("", false)
-            binding.searchView.clearFocus()
+            binding.etSearch.text?.clear()
+            binding.etSearch.clearFocus()
             viewModel.refresh()
         }
 
@@ -52,17 +51,9 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        binding.searchView.findViewById<AutoCompleteTextView>(
-            androidx.appcompat.R.id.search_src_text
-        )?.setTextColor(Color.WHITE)
-
-        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?) = false
-            override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.searchMovies(newText.orEmpty())
-                return true
-            }
-        })
+        binding.etSearch.addTextChangedListener { text ->
+            viewModel.searchMovies(text?.toString().orEmpty())
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
