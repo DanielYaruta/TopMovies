@@ -11,4 +11,12 @@
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>
+
+    <style name="SearchViewDark" parent="Widget.AppCompat.SearchView">
+        <item name="android:background">@drawable/bg_search</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textColorHint">#88FFFFFF</item>
+        <item name="queryBackground">@android:color/transparent</item>
+        <item name="submitBackground">@android:color/transparent</item>
+    </style>
 </resources>

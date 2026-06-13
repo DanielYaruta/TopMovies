@@ -1,9 +1,11 @@
 package com.example.topmovies
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -24,11 +26,17 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        checkLaunchCount()
+
         val layoutManager = LinearLayoutManager(this)
 
         binding.swipeRefresh.setColorSchemeColors(getColor(R.color.gold))
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#1E1E1E"))
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener {
+            binding.searchView.setQuery("", false)
+            binding.searchView.clearFocus()
+            viewModel.refresh()
+        }
 
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
@@ -37,6 +45,14 @@ class MainActivity : AppCompatActivity() {
                 if (dy <= 0) return
                 val lastVisible = layoutManager.findLastVisibleItemPosition()
                 if (lastVisible >= adapter.itemCount - 4) viewModel.loadNextPage()
+            }
+        })
+
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = false
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.searchMovies(newText.orEmpty())
+                return true
             }
         })
 
@@ -69,6 +85,15 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun checkLaunchCount() {
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val count = prefs.getInt("launch_count", 0) + 1
+        prefs.edit().putInt("launch_count", count).apply()
+        if (count % 3 == 0) {
+            startActivity(Intent(this, IntroActivity::class.java))
         }
     }
 }
