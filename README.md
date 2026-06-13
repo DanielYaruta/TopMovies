@@ -1,38 +1,38 @@
 # TopMovies
 
-Android app that displays top-rated movies from [TMDB](https://www.themoviedb.org/).
+Android-приложение для просмотра фильмов с высоким рейтингом на основе [TMDB](https://www.themoviedb.org/).
 
-## Features
+## Возможности
 
-- Top-rated movies list with infinite scroll pagination
-- Movie detail screen: genres, runtime, director, cast, similar movies
-- Shared element transition animation between list and detail
-- Skeleton loading screen, pull-to-refresh, error handling
-- MVVM architecture: ViewModel + StateFlow + Coroutines
+- Список топ фильмов с бесконечной прокруткой и пагинацией
+- Экран деталей: жанры, продолжительность, режиссёр, актёры, похожие фильмы
+- Анимация общего элемента при переходе между экранами
+- Скелетон-экран загрузки, pull-to-refresh, обработка ошибок
+- Архитектура MVVM: ViewModel + StateFlow + Coroutines
 
-## Tech Stack
+## Технологии
 
-| Layer | Technology |
-|-------|-----------|
-| Language | Kotlin |
-| Architecture | MVVM |
-| Async | Coroutines + StateFlow |
-| Networking | Retrofit 2 + Gson |
-| Images | Glide |
+| Слой | Технология |
+|------|-----------|
+| Язык | Kotlin |
+| Архитектура | MVVM + Repository |
+| Асинхронность | Coroutines + StateFlow |
+| Сеть | Retrofit 2 + Gson |
+| Изображения | Glide |
 | UI | View Binding, RecyclerView, DiffUtil |
-| Min SDK | 24 (Android 7.0) |
+| Мин. версия | SDK 24 (Android 7.0) |
 
-## Setup
+## Настройка
 
-1. Get a free API key at [themoviedb.org](https://www.themoviedb.org/settings/api)
-2. Add it to `local.properties`:
+1. Получите бесплатный API-ключ на [themoviedb.org](https://www.themoviedb.org/settings/api)
+2. Добавьте его в файл `local.properties`:
    ```
-   tmdb.api_key=YOUR_KEY_HERE
+   tmdb.api_key=ВАШ_КЛЮЧ
    ```
-3. Build and run in Android Studio
+3. Соберите и запустите проект в Android Studio
 
-## Screenshots
+## Скриншоты
 
-| List | Detail |
-|------|--------|
-| ![List](screenshots/main.png) | ![Detail](screenshots/detail.png) |
+| Список | Детали |
+|--------|--------|
+| ![Список](screenshots/main.png) | ![Детали](screenshots/detail.png) |
