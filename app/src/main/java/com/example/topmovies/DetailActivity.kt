@@ -42,17 +42,17 @@ class DetailActivity : AppCompatActivity() {
         binding.ivPoster.transitionName = intent.getStringExtra("transition_name")
         binding.tvTitle.text = intent.getStringExtra("title") ?: ""
         binding.tvOverview.text = intent.getStringExtra("overview") ?: ""
-        binding.tvRating.text = "★ ${"%.1f".format(voteAverage)}"
+        binding.tvRating.text = voteAverage.toRatingText()
         binding.tvYear.text = releaseDate.take(4)
 
         Glide.with(this)
-            .load("https://image.tmdb.org/t/p/w780$backdropPath")
+            .load(backdropPath.tmdbImageUrl("w780"))
             .placeholder(android.R.color.darker_gray)
             .into(binding.ivBackdrop)
 
         postponeEnterTransition()
         Glide.with(this)
-            .load("https://image.tmdb.org/t/p/w342$posterPath")
+            .load(posterPath.tmdbImageUrl("w342"))
             .placeholder(android.R.color.darker_gray)
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>, isFirstResource: Boolean): Boolean {

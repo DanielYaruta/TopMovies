@@ -23,7 +23,7 @@ class CastAdapter(private val cast: List<Cast>) :
             binding.tvActorName.text = cast.name
             binding.tvCharacter.text = cast.character
             Glide.with(binding.root)
-                .load("https://image.tmdb.org/t/p/w185${cast.profilePath}")
+                .load(cast.profilePath.tmdbImageUrl())
                 .placeholder(android.R.color.darker_gray)
                 .circleCrop()
                 .into(binding.ivActor)

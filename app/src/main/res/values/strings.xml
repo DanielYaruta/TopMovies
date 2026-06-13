@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">TopMovies</string>
+    <string name="empty_search_title">Ничего не найдено</string>
+    <string name="empty_search_subtitle">Попробуйте другой запрос</string>
+    <string name="error_api_key_title">Ключ API не настроен</string>
+    <string name="error_api_key_message">Добавьте строку\n\ntmdb.api_key=ВАШ_КЛЮЧ\n\nв файл local.properties и пересоберите проект.\n\nПолучить ключ: themoviedb.org → Account → API</string>
 </resources>

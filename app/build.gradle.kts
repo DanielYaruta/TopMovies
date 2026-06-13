@@ -19,6 +19,7 @@ android {
         val props = Properties()
         props.load(rootProject.file("local.properties").inputStream())
         buildConfigField("String", "TMDB_API_KEY", "\"${props.getProperty("tmdb.api_key", "")}\"")
+        buildConfigField("String", "DB_NAME", "\"movies.db\"")
     }
 
     buildFeatures {

@@ -1,8 +1,10 @@
 package com.example.topmovies
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.AutoCompleteTextView
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         checkLaunchCount()
+        checkApiKey()
 
         val layoutManager = LinearLayoutManager(this)
 
@@ -67,14 +70,16 @@ class MainActivity : AppCompatActivity() {
                     viewModel.uiState.collect { state ->
                         when (state) {
                             is MovieListUiState.Loading -> {
-                                adapter.setMovies(emptyList())
-                                adapter.setLoading(false)
+                                adapter.setSkeletonMode()
                                 binding.swipeRefresh.isRefreshing = false
+                                binding.emptyState.visibility = View.GONE
                             }
                             is MovieListUiState.Success -> {
                                 adapter.setMovies(state.movies)
                                 adapter.setLoading(state.isLoadingMore)
                                 binding.swipeRefresh.isRefreshing = state.isRefreshing
+                                binding.emptyState.visibility =
+                                    if (!state.isRefreshing && state.movies.isEmpty()) View.VISIBLE else View.GONE
                             }
                         }
                     }
@@ -90,6 +95,17 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+
+    private fun checkApiKey() {
+        if (BuildConfig.TMDB_API_KEY.isBlank()) {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.error_api_key_title))
+                .setMessage(getString(R.string.error_api_key_message))
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
         }
     }
 

@@ -20,6 +20,7 @@ class MovieAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val movies = mutableListOf<Movie>()
     private var showLoader = false
+    private var showSkeleton = true
 
     companion object {
         private const val TYPE_MOVIE = 0
@@ -28,14 +29,21 @@ class MovieAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         private const val SKELETON_COUNT = 6
     }
 
+    fun setSkeletonMode() {
+        if (showSkeleton) return
+        movies.clear()
+        showSkeleton = true
+        notifyDataSetChanged()
+    }
+
     fun setMovies(newMovies: List<Movie>) {
+        val wasShowingSkeleton = showSkeleton
+        showSkeleton = false
         val oldMovies = movies.toList()
-        val wasEmpty = oldMovies.isEmpty()
-        val isEmpty = newMovies.isEmpty()
         movies.clear()
         movies.addAll(newMovies)
 
-        if (wasEmpty || isEmpty) {
+        if (wasShowingSkeleton || oldMovies.isEmpty() || newMovies.isEmpty()) {
             notifyDataSetChanged()
             return
         }
@@ -60,13 +68,13 @@ class MovieAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemViewType(position: Int): Int = when {
-        movies.isEmpty() -> TYPE_SKELETON
+        showSkeleton -> TYPE_SKELETON
         position < movies.size -> TYPE_MOVIE
         else -> TYPE_LOADING
     }
 
     override fun getItemCount(): Int = when {
-        movies.isEmpty() -> SKELETON_COUNT
+        showSkeleton -> SKELETON_COUNT
         else -> movies.size + if (showLoader) 1 else 0
     }
 
@@ -98,10 +106,10 @@ class MovieAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             binding.tvRank.text = "#$rank"
             binding.tvTitle.text = movie.title
             binding.tvYear.text = movie.releaseDate.take(4)
-            binding.tvRating.text = "★ ${"%.1f".format(movie.voteAverage)}"
+            binding.tvRating.text = movie.voteAverage.toRatingText()
             binding.ivPoster.transitionName = "poster_${movie.id}"
             Glide.with(binding.root)
-                .load("https://image.tmdb.org/t/p/w185${movie.posterPath}")
+                .load(movie.posterPath.tmdbImageUrl())
                 .placeholder(android.R.color.darker_gray)
                 .into(binding.ivPoster)
             binding.root.setOnClickListener {

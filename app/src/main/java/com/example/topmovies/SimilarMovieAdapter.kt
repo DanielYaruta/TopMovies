@@ -21,9 +21,9 @@ class SimilarMovieAdapter(private val movies: List<Movie>) :
     class ViewHolder(private val binding: ItemSimilarMovieBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(movie: Movie) {
             binding.tvSimilarTitle.text = movie.title
-            binding.tvSimilarRating.text = "★ ${"%.1f".format(movie.voteAverage)}"
+            binding.tvSimilarRating.text = movie.voteAverage.toRatingText()
             Glide.with(binding.root)
-                .load("https://image.tmdb.org/t/p/w185${movie.posterPath}")
+                .load(movie.posterPath.tmdbImageUrl())
                 .placeholder(android.R.color.darker_gray)
                 .into(binding.ivSimilarPoster)
         }
