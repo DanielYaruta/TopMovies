@@ -16,8 +16,6 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
         val props = Properties()
         props.load(rootProject.file("local.properties").inputStream())
         buildConfigField("String", "TMDB_API_KEY", "\"${props.getProperty("tmdb.api_key", "")}\"")
@@ -58,7 +56,4 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
 }
